@@ -201,6 +201,7 @@ private[kinesis] object KinesisSourceProvider extends Logging {
   private[kinesis] val AWS_STS_ROLE_ARN = "awsstsrolearn"
   private[kinesis] val AWS_STS_SESSION_NAME = "awsstssessionname"
   private[kinesis] val STARTING_POSITION_KEY = "startingposition"
+  private[kinesis] val STARTING_TIMESTAMP_POSITION_KEY = "startingtimestampposition"
   private[kinesis] val DESCRIBE_SHARD_INTERVAL = "client.describeshardinterval"
 
   // Sink Options
@@ -222,6 +223,9 @@ private[kinesis] object KinesisSourceProvider extends Logging {
         new TrimHorizon
       case Some(position) if position.toLowerCase(Locale.ROOT) == "earliest" =>
         new TrimHorizon
+      case Some(position) if position.toLowerCase(Locale.ROOT) == "at_timestamp" =>
+        new AtTimeStamp(params.get(STARTING_TIMESTAMP_POSITION_KEY)
+          .map(_.trim.toLong).getOrElse(CURRENT_TIMESTAMP))
       case None => new AtTimeStamp(CURRENT_TIMESTAMP)
     }
   }
